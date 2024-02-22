@@ -27,7 +27,7 @@ app.listen(3000, () => {
 app.get("/afficherMedecins", async (req, res) => {
   try {
     const medecins = await pool.query(
-      'SELECT numero_medecin, nom, nombre_jour, taux_journalier, nombre_jour * taux_journalier AS prestation FROM medecin'
+      'SELECT *, nombre_jour * taux_journalier AS prestation FROM medecin'
     );
     res.json(medecins.rows);
   } catch (err) {
