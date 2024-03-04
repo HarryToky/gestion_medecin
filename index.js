@@ -1,13 +1,25 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const pool = require("./db");
+const cors = require('cors');
+
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
+
+function generateRandomNumber(length) {
+  // Generate a random number between 10000 and 99999
+  const min = Math.pow(10, length - 1);
+  const max = Math.pow(10, length) - 1;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 app.post("/ajouterMedecin", async (req, res) => {
   try {
-    const { numero_medecin, nom, nombre_jour, taux_journalier } = req.body;
+
+    const { nom, nombre_jour, taux_journalier } = req.body;
+    let numero_medecin = generateRandomNumber(5)
 
     const nouveauMedecin = await pool.query(
       "INSERT INTO medecin (numero_medecin, nom, nombre_jour, taux_journalier) VALUES ($1, $2, $3, $4)",
@@ -27,7 +39,7 @@ app.listen(3000, () => {
 app.get("/afficherMedecins", async (req, res) => {
   try {
     const medecins = await pool.query(
-      'SELECT *, nombre_jour * taux_journalier AS prestation FROM medecin'
+      'SELECT *, nombre_jour * taux_journalier AS prestation FROM medecin ORDER BY id DESC'
     );
     res.json(medecins.rows);
   } catch (err) {
@@ -38,6 +50,7 @@ app.get("/afficherMedecins", async (req, res) => {
 
 app.put("/modifierMedecin/:id", async (req, res) => {
   const { id } = req.params;
+  console.log(req.body);
   const { numero_medecin, nom, nombre_jour, taux_journalier } = req.body;
   try {
     await pool.query(
